@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flash Wallet — Buy electricity (demo)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0d110e; color: #e6ede4; max-width: 440px; margin: 48px auto; }
+    label { display: block; margin-top: 16px; }
+    input { width: 100%; padding: 8px; font-size: 16px; box-sizing: border-box; }
+    button { margin-top: 20px; padding: 10px 16px; background: #1dfa0f; border: 0; font-weight: 700; }
+    [data-result="error"] { color: #ff8a8a; }
+    [data-result="success"] { color: #1dfa0f; }
+  </style>
+</head>
+<body>
+  <h1>Buy electricity</h1>
+  <p>Wallet balance: <strong data-testid="account-balance">…</strong></p>
+  <form id="electricity-form">
+    <label for="meter">Meter number</label>
+    <input id="meter" name="meter" inputmode="numeric">
+    <label for="amount">Amount (R)</label>
+    <input id="amount" name="amount" inputmode="numeric">
+    <button type="submit">Buy electricity</button>
+  </form>
+  <p data-testid="purchase-result" role="status"></p>
+  <p data-testid="purchase-token"></p>
+  <script>
+    // The page talks to the API; the account id comes from ?account=A-0001
+    const accountId = new URLSearchParams(location.search).get('account');
+    const balanceEl = document.querySelector('[data-testid="account-balance"]');
+    const resultEl = document.querySelector('[data-testid="purchase-result"]');
+    const tokenEl = document.querySelector('[data-testid="purchase-token"]');
+
+    function showResult(result, message) {
+      resultEl.dataset.result = result;
+      resultEl.textContent = message;
+    }
+
+    async function loadBalance() {
+      try {
+        const response = await fetch(`/api/accounts/${accountId}`);
+        if (!response.ok) throw new Error(String(response.status));
+        balanceEl.textContent = (await response.json()).balance;
+      } catch {
+        balanceEl.textContent = 'Unavailable';
+      }
+    }
+
+    document.getElementById('electricity-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      tokenEl.textContent = '';
+      try {
+        const response = await fetch(`/api/accounts/${accountId}/electricity`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            meterNumber: document.getElementById('meter').value.trim(),
+            amount: document.getElementById('amount').value.trim(),
+          }),
+        });
+        if (response.status >= 500) throw new Error(String(response.status));
+        const body = await response.json();
+        showResult(body.result, body.message);
+        balanceEl.textContent = body.balance;
+        if (body.token) tokenEl.textContent = `Token: ${body.token}`;
+      } catch {
+        showResult('error', "We couldn't complete your purchase. Please try again.");
+      }
+    });
+
+    loadBalance();
+  </script>
+</body>
+</html>

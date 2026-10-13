@@ -1,0 +1,23 @@
+{
+  "name": "flash-module-3-topic-2-exercise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Scorpio962b/Flash-module-3-topic-2-exercise.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Scorpio962b/Flash-module-3-topic-2-exercise/issues"
+  },
+  "homepage": "https://github.com/Scorpio962b/Flash-module-3-topic-2-exercise#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5"
+  }
+}
